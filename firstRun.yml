@@ -1,0 +1,17 @@
+%YAML:1.0
+---
+#firstRunFlag: 0表示不是第一次运行
+firstRunFlag: 0
+boardWidth: 7
+boardHeight: 7
+#squareWidth表示实际测量的棋盘格的宽和高，单位mm
+squareWidth: 60
+squareHeight: 60
+#frameNumber表示用于双目标定的棋盘图片的数量
+frameNumber: 1
+#rows必须和frameNumber相等，zs表示棋盘离摄像机多远，单位mm
+zs: !!opencv-matrix
+   rows: 1
+   cols: 1
+   dt: d
+   data: [ 0 ]

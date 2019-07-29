@@ -1,0 +1,12 @@
+%YAML:1.0
+---
+#imgWidth是左右相机的图片宽度的总和
+imgWidth: 2560 
+imgHeight: 960
+#frameNum是拍摄的图片的个数
+frameNum: 10
+#每隔delay ms 拍摄一张图片
+delay: 10 
+#保存图像文件的基本路径,图像的名字依次编号为0,1,2
+leftBase: "realTimeImg\\left\\%d.jpg"
+rightBase: "realTimeImg\\right\\%d.jpg"
