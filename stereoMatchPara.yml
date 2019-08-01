@@ -1,5 +1,2 @@
 %YAML:1.0
 ---
-blockSize: 5
-uniquenessRatio: 8
-numDisparities: 4

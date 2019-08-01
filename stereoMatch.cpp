@@ -11,12 +11,13 @@
 //
 ///*START 定义一些要用到的数据-----------------------------------------------------------------*/
 //	//图片大小
-//const int imgWidth = 377;
-//const int imgHeight = 265;
+//int imgWidth = 1280;
+//int imgHeight = 720;
 //Size imgSize = Size(imgWidth, imgHeight);
 //
 //FileStorage fsin("intrinsics.yml", FileStorage::READ); //内参数
 //FileStorage fsex("extrinsics.yml", FileStorage::READ); //外参数
+//FileStorage fsconfig("config.yml", FileStorage::READ);
 //
 ////左右相机的内参数矩阵和畸变系数
 //Mat cameraMatL,
@@ -72,7 +73,11 @@
 //void stereo_match(int, void*)
 //{
 //	//更新stereoMatchPara.yml配置文件
-//	matchfs << "blockSize" << blockSize << "uniquenessRatio" << uniquenessRatio << "numDisparities" << numDisparities;
+//	/*matchfs = FileStorage("stereoMatchPara.yml",FileStorage::WRITE);
+//	matchfs << "blockSize" << blockSize;
+//	matchfs << "uniquenessRatio" << uniquenessRatio;
+//	matchfs << "numDisparities" << numDisparities;
+//	matchfs.release();*/
 //
 //	bm->setBlockSize(2 * blockSize + 5);     //SAD窗口大小，5~21之间为宜
 //	bm->setROI1(validROIL);
@@ -92,9 +97,37 @@
 //	//计算得到的非正常值是否给值，如果为true则给值10000
 //	reprojectImageTo3D(disp, xyz, Q, true); //在实际求距离时，ReprojectTo3D出来的X / W, Y / W, Z / W都要乘以16(也就是W除以16)，才能得到正确的三维坐标信息。
 //	xyz = xyz * 16; //毫米级真实位置
-//	cout << "disp8的大小" << disp8.rows << " " << disp8.cols << endl;
-//	cout << "xyz的大小" << xyz.rows << "  " << xyz.cols << endl;
 //	imshow("disparity", disp8);
+//	
+//	/*将视差图保存到文件中*/
+//	string path = string("disp\\");
+//	string s1, s2;
+//	stringstream stm;
+//
+//	s1 = string("disp_");
+//	stm << blockSize;
+//	stm >> s2;
+//	s1 = s1 + s2;
+//	path = path + s1;
+//	stm.clear();
+//
+//	s1 = string("_");
+//	stm << uniquenessRatio;
+//	stm >> s2;
+//	s1 = s1 + s2;
+//	path = path + s1;
+//	stm.clear();
+//
+//	s1 = string("_");
+//	stm << numDisparities;
+//	stm >> s2;
+//	s1 = s1 + s2;
+//	path = path + s1;
+//	stm.clear();
+//
+//	path = path + ".jpg";
+//
+//	imwrite(path, disp8);
 //}
 //
 //
@@ -106,19 +139,19 @@
 //*/
 //void stereoMatch(vector<string> &rgbImgLVec, vector<string> &rgbImgRVec) {
 //	 
-//	matchfs << "blockSize" << blockSize << "uniquenessRatio" << uniquenessRatio << "numDisparities" << numDisparities;
-//
+//	imgWidth = fsconfig["imgWidth"];
+//	imgHeight = fsconfig["imgHeight"];
 //	fsin["cameraMatL"] >> cameraMatL;
 //	fsin["cameraMatR"] >> cameraMatR;
 //	fsin["distcoeffsL"] >> distcoeffsL;
 //	fsin["distcoeffsR"] >> distcoeffsR;
 //
-//	T = (Mat_<double>(3, 1) << -61.34485, 2.89570, -4.76870);//T平移向量,提前标定好的
-//	R = (Mat_<double>(3, 1) << -0.00306, -0.03207, 0.00206);//旋转向量
-//	Rodrigues(R, RMat); //Rodrigues变换
-//	cout << RMat << endl;
-//	/*fsex["R"] >> RMat;
-//	fsex["T"] >> T;*/
+//	//T = (Mat_<double>(3, 1) << -61.34485, 2.89570, -4.76870);//T平移向量,提前标定好的
+//	//R = (Mat_<double>(3, 1) << -0.00306, -0.03207, 0.00206);//旋转向量
+//	//Rodrigues(R, RMat); //Rodrigues变换
+//	//cout << RMat << endl;
+//	fsex["R"] >> RMat;
+//	fsex["T"] >> T;
 //
 //	//计算立体矫正的映射矩阵
 //	//alpha=0(CALIB...后面的)表示输出是裁剪后的图像,然后再resize,并且ROI覆盖整个图像；alpha=1,输出图像和原图尺寸一样，但是可能会有黑色区域
@@ -149,12 +182,10 @@
 //		cvtColor(rgbImgR, grayImgR, CV_RGB2GRAY);
 //
 //		//显示灰度图
-//		imshow("grayImgL before rectify", grayImgL);
-//		imshow("grayImgR before rectify", grayImgR);
+//		/*imshow("grayImgL before rectify", grayImgL);
+//		imshow("grayImgR before rectify", grayImgR);*/
 //
 //		/*经过remap后，左右相机的图片已经共面并且行对准了*/
-//		cout << "mapLx的大小" << mapLx.rows << " " << mapLx.cols << endl;
-//		cout << "mapLx(1,1)" << mapLx.at<int>(1, 1) << endl;
 //		remap(grayImgL, rectifyImgL, mapLx, mapLy, INTER_LINEAR);
 //		remap(grayImgR, rectifyImgR, mapRx, mapRy, INTER_LINEAR);
 //
@@ -163,7 +194,7 @@
 //		cvtColor(rectifyImgL, rgbRectifyImgL, CV_GRAY2RGB);
 //		cvtColor(rectifyImgR, rgbRectifyImgR, CV_GRAY2RGB);
 //		imshow("rgbImgL after rectify", rgbRectifyImgL);
-//		imshow("rgbImgR after rectify", rgbRectifyImgR);
+//		//imshow("rgbImgR after rectify", rgbRectifyImgR);
 //
 //		/*END 矫正阶段------------------------------------------------------------------------------------*/
 //
@@ -177,21 +208,29 @@
 //		// 创建视差窗口 Trackbar
 //		createTrackbar("NumDisparities:\n", "disparity", &numDisparities, 16, stereo_match);
 //		stereo_match(0, 0);
-//		waitKey(0);
+//		waitKey();
 //
 //		/*END 立体匹配测试阶段----------------------------------------------------------------------------------*/	
 //	}
 //}
 //
-//int main() {
-//	vector<string> rgbImgLVec;
-//	vector<string> rgbImgRVec;
+//int main(int argc, char* argv[]) {
+//	if (argc == 3) {
+//		vector<string> rgbImgLVec;
+//		vector<string> rgbImgRVec;
 //
-//	rgbImgLVec.push_back("img\\left\\0.jpg");
-//	rgbImgRVec.push_back("img\\right\\0.jpg");
+//		string rgbImgLPath = string(*(++argv));
+//		string rgbImgRPath = string(*(++argv));
+//		rgbImgLVec.push_back(rgbImgLPath);
+//		rgbImgRVec.push_back(rgbImgRPath);
 //
-//	stereoMatch(rgbImgLVec, rgbImgRVec);
+//		stereoMatch(rgbImgLVec, rgbImgRVec);
+//	}
+//	else {
+//		cout << "no arguments!" << endl;
+//	}
 //}
+
 
 /*
 1. 百度上找不到任何关于立体匹配BM算法的详解

@@ -21,5 +21,5 @@ using namespace cv;
 
 void outputCameraParam(Mat cameraMatL, Mat distcoeffsL, Mat cameraMatR, Mat distcoeffsR,
 	Mat R, Mat T, Mat Rl, Mat Rr, Mat Pl, Mat Pr, Mat Q);
-void calRealPoint(int boardWidth, int boardHeight, int imgNumber, int squareSize, Mat zs, vector<vector<Point3f>>& obj);
-void stereoCalib(Size imgSiz, Size boardSiz, Size squareSiz, int frameNum, Mat zs);
+void calRealPoint(int boardWidth, int boardHeight, int imgNumber, int squareSize, vector<vector<Point3f>>& obj);
+void stereoCalib(Size imgSiz, Size boardSiz, Size squareSiz, int frameNum);

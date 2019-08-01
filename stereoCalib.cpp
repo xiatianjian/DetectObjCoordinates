@@ -38,7 +38,7 @@ void outputCameraParam(Mat cameraMatL, Mat distcoeffsL, Mat cameraMatR, Mat dist
 
 
 /*计算标定板上内角点在世界坐标系下的坐标*/
-void calRealPoint(int boardWidth, int boardHeight, int imgNumber, int squareSize, Mat zs, vector<vector<Point3f>>& obj)
+void calRealPoint(int boardWidth, int boardHeight, int imgNumber, int squareSize, vector<vector<Point3f>>& obj)
 {
 	
 	for (int i = 0; i < imgNumber; ++i) {
@@ -48,7 +48,7 @@ void calRealPoint(int boardWidth, int boardHeight, int imgNumber, int squareSize
 		{
 			for (int colIndex = 0; colIndex < boardWidth; colIndex++)
 			{
-				imgpoint.push_back(Point3f(rowIndex * squareSize, colIndex * squareSize, zs.at<double>(i,1)));
+				imgpoint.push_back(Point3f(rowIndex * squareSize, colIndex * squareSize, 0));
 			}
 		}
 		
@@ -63,7 +63,7 @@ void calRealPoint(int boardWidth, int boardHeight, int imgNumber, int squareSize
 	frameNum: 标定所需要的图片的帧数
 	zs: (n,1)的单通道矩阵，所有frameNum个标定板在世界坐标系中的深度值（z值）
 */
-void stereoCalib(Size imgSiz, Size boardSiz, Size squareSiz, int frameNum, Mat zs) {
+void stereoCalib(Size imgSiz, Size boardSiz, Size squareSiz, int frameNum) {
 
 	/*START 双目标定用到的数据-------------------------------------------------------*/
 	//摄像头的分辨率
@@ -134,7 +134,7 @@ void stereoCalib(Size imgSiz, Size boardSiz, Size squareSiz, int frameNum, Mat z
 
 	/*计算左相机的内参数和畸变系数*/
 	string leftBase = "img\\left\\";
-	//singleCalib(boardSize, squareSize,leftBase);
+	//singleCalib(boardSize, squareSize, leftBase);
 	fsL = FileStorage(leftBase + "singleCalibResults.yml", FileStorage::READ);
 	fsL["cameraMat"] >> cameraMatL;
 	fsL["distcoeffs"] >> distcoeffsL;
@@ -154,14 +154,14 @@ void stereoCalib(Size imgSiz, Size boardSiz, Size squareSiz, int frameNum, Mat z
 		char filename[100];
 
 		/*读取左边的图像*/
-		//sprintf_s(filename, "img\\left\\%d.jpg", goodFrameCount);
-		sprintf_s(filename, "img\\left\\0.jpg");
+		sprintf_s(filename, "img\\left\\%d.jpg", frameCount);
+		//sprintf_s(filename, "img\\left\\0.jpg");
 		rgbImgL = imread(filename, CV_LOAD_IMAGE_COLOR); 
 		cvtColor(rgbImgL, grayImgL, CV_BGR2GRAY);
 
 		/*读取右边的图像*/
-		//sprintf_s(filename, "img\\right\\%d.jpg", goodFrameCount);
-		sprintf_s(filename, "img\\right\\0.jpg");
+		sprintf_s(filename, "img\\right\\%d.jpg", frameCount);
+		//sprintf_s(filename, "img\\right\\0.jpg");
 		rgbImgR = imread(filename, CV_LOAD_IMAGE_COLOR);
 		cvtColor(rgbImgR, grayImgR, CV_BGR2GRAY);
 
@@ -194,7 +194,7 @@ void stereoCalib(Size imgSiz, Size boardSiz, Size squareSiz, int frameNum, Mat z
 	}
 
 	//计算实际的校正点的三维坐标，根据实际标定格子的大小来设置
-	calRealPoint(boardWidth, boardHeight, frameNumber, squareSize.width, zs, objRealPoint);
+	calRealPoint(boardWidth, boardHeight, frameNumber, squareSize.width, objRealPoint);
 	cout << "cal real successful" << endl;
 
 	/*标定摄像头*/
@@ -227,6 +227,8 @@ void stereoCalib(Size imgSiz, Size boardSiz, Size squareSiz, int frameNum, Mat z
 
 	imshow("rectifyImageL", rectifyImageL2);
 	imshow("rectifyImageR", rectifyImageR2);
+	imwrite("elseImg\\rectifyImageL.jpg", rectifyImageL2);
+	imwrite("elseImg\\rectifyImageR.jpg", rectifyImageR2);
 
 	//保存标定结果
 	outputCameraParam(cameraMatL, distcoeffsL, cameraMatR, distcoeffsR,
@@ -264,12 +266,28 @@ void stereoCalib(Size imgSiz, Size boardSiz, Size squareSiz, int frameNum, Mat z
 		line(canvas, Point(0, i), Point(canvas.cols, i), Scalar(0, 255, 0), 1, 8);
 
 	imshow("rectified", canvas);
+	imwrite("elseImg\\rectify.jpg", canvas);
 	cout << "wait key" << endl;
-	waitKey(2000);
+	waitKey(100000);
 
 	/*END 显示校正结果-------------------------------------------------------------------------------*/
 }
 
+//int main() {
+//	FileStorage firstRunfs("firstRun.yml", FileStorage::READ);
+//	int boardWidth, boardHeight, squareWidth, squareHeight, frameNumber;
+//	Mat zs;
+//
+//	boardWidth = firstRunfs["boardWidth"];
+//	boardHeight = firstRunfs["boardHeight"];
+//	squareWidth = firstRunfs["squareWidth"];
+//	squareHeight = firstRunfs["squareHeight"];
+//	frameNumber = firstRunfs["frameNumber"];
+//	firstRunfs["zs"] >> zs;
+//
+//	stereoCalib(Size(1280, 720), Size(boardWidth, boardHeight),
+//		Size(squareWidth, squareHeight), frameNumber);
+//}
 
 /*
 1. 事先把数据写好很方便，可以方便的修改数据的值

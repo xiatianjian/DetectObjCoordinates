@@ -104,6 +104,7 @@ void singleCalib(Size boardSiz, Size square, string base)
 		cornerPoints.push_back(pointSet);
 	}
 
+	
 	/*开始标定
 	输入参数：
 		cornerPoints: 世界坐标系中角点的三维坐标
@@ -162,25 +163,25 @@ void singleCalib(Size boardSiz, Size square, string base)
 
 	/*START 保存定标结果---------------------------------------------------------------------------*/
 	/*输出到txt文件中*/
-	//Mat rotation_matrix = Mat(3, 3, CV_32FC1, Scalar::all(0));  /* 保存每幅图像的旋转矩阵 */
-	//fout << "相机内参数矩阵：" << endl;
-	//fout << cameraMat << endl << endl;
-	//fout << "畸变系数：\n";
-	//fout << distcoeffs << endl << endl << endl;
-	//for (int i = 0; i < imgCount; i++)
-	//{
-	//	fout << "第" << i + 1 << "幅图像的旋转向量：" << endl;
-	//	fout << rvecsMat[i] << endl;
+	Mat rotation_matrix = Mat(3, 3, CV_32FC1, Scalar::all(0));  /* 保存每幅图像的旋转矩阵 */
+	fout << "相机内参数矩阵：" << endl;
+	fout << cameraMat << endl << endl;
+	fout << "畸变系数：\n";
+	fout << distcoeffs << endl << endl << endl;
+	for (int i = 0; i < imgCount; i++)
+	{
+		fout << "第" << i + 1 << "幅图像的旋转向量：" << endl;
+		fout << rvecsMat[i] << endl;
 
-	//	/* 将旋转向量转换为相对应的旋转矩阵 */
-	//	Rodrigues(rvecsMat[i], rotation_matrix);
+		/* 将旋转向量转换为相对应的旋转矩阵 */
+		Rodrigues(rvecsMat[i], rotation_matrix);
 
-	//	fout << "第" << i + 1 << "幅图像的旋转矩阵：" << endl;
-	//	fout << rotation_matrix << endl;
-	//	fout << "第" << i + 1 << "幅图像的平移向量：" << endl;
-	//	fout << tvecsMat[i] << endl << endl;
-	//}
-	//fout << endl;
+		fout << "第" << i + 1 << "幅图像的旋转矩阵：" << endl;
+		fout << rotation_matrix << endl;
+		fout << "第" << i + 1 << "幅图像的平移向量：" << endl;
+		fout << tvecsMat[i] << endl << endl;
+	}
+	fout << endl;
 
 	/*输出到yaml文件中*/
 	fs << "distcoeffs" << distcoeffs << "cameraMat" << cameraMat;
@@ -219,6 +220,7 @@ void singleCalib(Size boardSiz, Size square, string base)
 /*注意：
 1. 假定标定板在世界坐标系中的z坐标为0是什么意思啊，是标定板放在摄像机镜头那里吗？
 2. 我太懂根据棋盘图算出内参数矩阵和畸变参数的原理
+3. 为什么单目标定里面cornerPoints的参数(角点世界坐标的vector)，z坐标必须为0，我一设为其他数，就出错了。
 */
 
 

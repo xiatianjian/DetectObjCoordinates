@@ -8,12 +8,16 @@ xyzs: ²Ã¼ôºóµÄÍ¼Æ¬µÄ¸÷ÏñËØµãµÄx,y,zÖµ£¬±íÊ¾Êµ¼ÊµÄ¾àÀë£¨Êä³öÏî£©£¬ÓĞ¶àÉÙ¸öÍ¼Æ¬¾ÍÓ
 void getXyz(vector<string> &rgbImgLVec, vector<string> &rgbImgRVec, vector<Mat> &xyzs, vector<Mat> &newImgs) {
 	/*START ¶¨ÒåÒ»Ğ©ÒªÓÃµ½µÄÊı¾İ-----------------------------------------------------------------*/
 	//Í¼Æ¬´óĞ¡
-	const int imgWidth = 640;
-	const int imgHeight = 480;
-	Size imgSize = Size(imgWidth, imgHeight);
-
 	FileStorage fsin("intrinsics.yml", FileStorage::READ); //ÄÚ²ÎÊı
 	FileStorage fsex("extrinsics.yml", FileStorage::READ); //Íâ²ÎÊı
+	FileStorage fsconfig("config.yml", FileStorage::READ);
+
+	int imgWidth = 1280;
+	int imgHeight = 720;
+	imgWidth = fsconfig["imgWidth"];
+	imgHeight = fsconfig["imgHeight"];
+	imgWidth = imgWidth / 2;
+	Size imgSize = Size(imgWidth, imgHeight);
 
 	//×óÓÒÏà»úµÄÄÚ²ÎÊı¾ØÕóºÍ»û±äÏµÊı
 	Mat cameraMatL,
@@ -29,10 +33,10 @@ void getXyz(vector<string> &rgbImgLVec, vector<string> &rgbImgRVec, vector<Mat> 
 	Mat R,
 		T,
 		RMat;
-	//fsex["R"] >> R;
+	fsex["R"] >> RMat;
 	fsex["T"] >> T;
-	R = (Mat_<double>(3, 1) << -0.00306, -0.03207, 0.00206);
-    Rodrigues(R, RMat);
+	/*R = (Mat_<double>(3, 1) << -0.00306, -0.03207, 0.00206);
+    Rodrigues(R, RMat);*/
 
 
 	//Í¼ÏñĞ£ÕıÖ®ºó£¬»á¶ÔÍ¼Ïñ½øĞĞ²Ã¼ô£¬ÕâÀïµÄvalidROI¾ÍÊÇÖ¸²Ã¼ôÖ®ºóµÄÇøÓò  
@@ -57,7 +61,7 @@ void getXyz(vector<string> &rgbImgLVec, vector<string> &rgbImgRVec, vector<Mat> 
 	Mat xyz;
 
 	//Á¢ÌåÆ¥ÅäÏà¹Ø²ÎÊı
-	int blockSize = 5, uniquenessRatio = 8, numDisparities = 4;
+	int blockSize = 5, uniquenessRatio = 8, numDisparities = 8;
 	FileStorage matchfs("stereoMatchPara.yml", FileStorage::READ);
 	blockSize = matchfs["blockSize"];
 	uniquenessRatio = matchfs["uniquenessRatio"];
